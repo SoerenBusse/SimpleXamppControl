@@ -74,6 +74,7 @@ Wird als zweiter Parameter `false` angegeben, so versucht das Skript standardmä
 |---|---|
 | Lokaler Dokumenten Ordner | \\localhost\C$\Users\<Benutzername>\Documents  |
 | Folder Redirection | \\<Pfad zum umgeleiteten Documents Ordner>  |
+
 Für ersteren Fall muss ein Zugriff auf das `C` Laufwerk über `\\localhost\C$` möglich sein
 
 Ist der zweite Parameter `true` so wird kein Mountversuch unternommen und das Skript geht davon aus, das unter dem angegeben Laufwerksbuchstaben bereits ein Netzwerklaufwerk existiert, welches zum Beispiel über GPOs erstellt wurde.
