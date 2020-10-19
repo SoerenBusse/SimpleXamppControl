@@ -7,10 +7,10 @@
 [void] [System.Reflection.Assembly]::LoadWithPartialName("System.Windows.Forms")
 
 # Eigene Klassen laden
-. $PSScriptRoot\GUIManager.ps1
-. $PSScriptRoot\DatabaseTools.ps1
-. $PSScriptRoot\NetworkShareTools.ps1
-. $PSScriptRoot\XamppTools.ps1
+. $PSScriptRoot\Classes\GUIManager.ps1
+. $PSScriptRoot\Classes\DatabaseTools.ps1
+. $PSScriptRoot\Classes\NetworkShareTools.ps1
+. $PSScriptRoot\Classes\XamppTools.ps1
 
 # Globale Variabeln definieren
 $xamppRootDirectory = "C:\xampp"
