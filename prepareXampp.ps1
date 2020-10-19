@@ -66,8 +66,8 @@ function Add-PublicDirectoryRoot([string] $xamppPublicDirectory) {
 
 
 # Argumente prüfen
-if ($args.Count -lt 1) {
-    Write-Host "Zu wenig Argumente. <Laufwerksbuchstabe des Benutzers>"
+if ($args.Count -lt 2) {
+    Write-Host "Zu wenig Argumente. <Laufwerksbuchstabe des Benutzers> <Vorhanden Laufwerksbuchstaben für Startskript nutzen>"
     exit 1
 }
 
@@ -75,6 +75,13 @@ if(-Not($args[0] -match "^[A-Z]$")) {
     Write-Host "Der Laufwerksbuchstabe" $args[0] "ist ungültig"
     exit 1
 }
+
+if(-Not($args[1] -match "true" -Or $args[1] -Match "false")) {
+    Write-Host "Der Wert, ob ein das Startskript ein vorhandenes Laufwerk nutzt muss true/false sein. Ist:" $args[1]
+    exit 1
+}
+
+$useExistingDriveLetter = If ($args[1] -Match "true") { $true } Else { $false }
 
 ## Variabeln definieren ##
 # Installationsordner aus Argumente parsen
@@ -108,4 +115,4 @@ Add-Symlink "$installDirectory\mysql\data" ($userWebDriveLetter + ":\Web\mysqlda
 # Batchdatei zum starten erstellen, um die ExecutionPolicy zu umgehen
 $SimpleXamppControlStarterFile = "$installDirectory\SimpleXamppControl\SimpleXamppControl.bat"
 New-Item "$SimpleXamppControlStarterFile" -Force 
-Set-Content "$SimpleXamppControlStarterFile" "powershell.exe -ExecutionPolicy ByPass -File $installDirectory\SimpleXamppControl\SimpleXamppControl.ps1 $userWebDriveLetter"
+Set-Content "$SimpleXamppControlStarterFile" "powershell.exe -ExecutionPolicy ByPass -File $installDirectory\SimpleXamppControl\SimpleXamppControl.ps1 $userWebDriveLetter $useExistingDriveLetter"

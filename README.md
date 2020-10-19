@@ -22,7 +22,7 @@ Das Skript erstellt die Ordnerstruktur für Xampp, schränkt diese ein und erste
 **Dieses Skript muss mit Administratorenrechten gestartet werden.**
 
 #### Ausführen
-`.\PrepareXampp.ps1 <Der in Symlinks zu nutzende Laufwerksbuchstabe - z.B. W (ohne Doppelpunkt und Pfad)>`
+`.\PrepareXampp.ps1 <Der in Symlinks zu nutzende Laufwerksbuchstabe - z.B. W (ohne Doppelpunkt und Pfad)> <Vorhanden Laufwerksbuchstaben für Startskript nutzen, siehe #SimpleXamppControl.ps1 in README>`
 
 #### ACLs
 Mittels vordefinierten SDDLs ACLs werden die Rechte auf dem Ordner `C:\xampp` so eingeschränkt, das ausschließlich Administratoren (inkl. Domänen Administratoren) Schreibzugriff haben.
