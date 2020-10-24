@@ -101,8 +101,8 @@
     }
 
     [void] CleanPublicDirecotry() {
-        Remove-Item ($this.xamppPublicDirectory + "\apache-logs\*")
-        Remove-Item ($this.xamppPublicDirectory + "\phpmyadmin-tmp\*")
-        Remove-Item ($this.xamppPublicDirectory + "\tmp\*")
+        Remove-Item ($this.xamppPublicDirectory + "\apache-logs\*") -Recurse
+        Remove-Item ($this.xamppPublicDirectory + "\phpmyadmin-tmp\*") -Recurse
+        Remove-Item ($this.xamppPublicDirectory + "\tmp\*") -Recurse
     }
 }
