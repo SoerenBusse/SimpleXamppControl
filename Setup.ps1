@@ -221,7 +221,12 @@ elseif ($Action -eq "uninstall") {
         "$InstallDir\phpmyadmin\tmp"
     )) {
         Remove-Symlink $path
-        New-Item -ItemType Directory -Path $path
+
+        # The uninstaller expects to have the directories we have replaced with an symlink
+        # We have to create them if they don't exist before the uninstaller can run properbly
+        if (-Not(Test-Path $path)) {
+            New-Item -ItemType Directory -Path $path
+        }
     }
 
     foreach ($shortcut in @($ShortcutDesktop, $ShortcutStart, $ShortcutReset)) {
