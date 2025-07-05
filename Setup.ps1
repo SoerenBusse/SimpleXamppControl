@@ -19,8 +19,8 @@ $CommonDesktopDir = [Environment]::GetFolderPath("CommonDesktopDirectory")
 $CommonStartMenuDir = [Environment]::GetFolderPath("CommonStartMenu")
 $ProgramShortcutDir = Join-Path $CommonStartMenuDir "\Programs\XAMPP Classroom"
 
-$ShortcutDesktop = Join-Path $CommonDesktopDir "Start Xampp Classroom.lnk"
-$ShortcutStart = Join-Path $ProgramShortcutDir "Start Xampp Classroom.lnk"
+$ShortcutDesktop = Join-Path $CommonDesktopDir "Xampp Classroom.lnk"
+$ShortcutStart = Join-Path $ProgramShortcutDir "Xampp Classroom.lnk"
 $ShortcutReset = Join-Path $ProgramShortcutDir "Reset MySQL Database.lnk"
 
 $XamppIconPath = "C:\xampp\xampp_start.exe"
