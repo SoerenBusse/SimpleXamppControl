@@ -25,6 +25,9 @@ $ShortcutReset = Join-Path $ProgramShortcutDir "Reset MySQL Database.lnk"
 
 $XamppIconPath = "C:\xampp\xampp_start.exe"
 
+$PublicDirectorySDDL = "O:BAG:DUD:PAI(A;OICI;0x1e01ff;;;AU)(A;OICI;FA;;;SY)(A;OICI;FA;;;BA)(A;OICI;0x1200a9;;;BU)"
+$WriteFileNotDeleteSDDL = "O:BAG:DUD:PAI(A;;0x1201bf;;;AU)(A;;FA;;;SY)(A;;FA;;;BA)(A;;0x1200a9;;;BU)"
+
 # === FUNCTIONS ===
 
 function New-Shortcut {
@@ -108,24 +111,36 @@ function Remove-Symlink {
     }
 }
 
-function Set-SDDLToDirectory {
-    <#
-    .SYNOPSIS
-        Sets directory permissions using raw SDDL string
-    #>
-    param([string]$sddl, [string]$directory)
-    $acl = Get-Acl $directory
+function Set-SDDLToPath {
+    param([string]$sddl, [string]$path)
+    $acl = Get-Acl $path
     $acl.SetSecurityDescriptorSddlForm($sddl)
-    Set-Acl $directory $acl
+    Set-Acl $path $acl
 }
 
 function Add-PublicDirectoryAndSymlink {
     param([string]$LinkPath, [string]$TargetPath)
 
-    $sddl = "O:BAG:DUD:PAI(A;OICI;0x1e01ff;;;AU)(A;OICI;FA;;;SY)(A;OICI;FA;;;BA)(A;OICI;0x1200a9;;;BU)"
     New-Item $TargetPath -ItemType Directory -Force | Out-Null
-    Set-SDDLToDirectory $sddl $TargetPath
+    Set-SDDLToPath $PublicDirectorySDDL $TargetPath
     Add-Symlink -LinkPath $LinkPath -TargetPath $TargetPath -UsePowerShell $true
+}
+
+function Add-PublicDirectory {
+    param([string]$TargetPath)
+
+    New-Item $TargetPath -ItemType Directory -Force | Out-Null
+    Set-SDDLToPath $PublicDirectorySDDL $TargetPath
+}
+
+function AddFileAllowWriteNoDelete {
+    param([string]$FilePath)
+
+    if (-Not(Test-Path $FilePath)) {
+        New-Item $FilePath -ItemType File | Out-Null
+    }
+
+    Set-SDDLToPath $WriteFileNotDeleteSDDL $FilePath
 }
 
 function Add-Symlink {
@@ -161,7 +176,7 @@ function Add-PublicDirectoryRoot {
     }
 
     New-Item $Path -ItemType Directory -Force | Out-Null
-    Set-SDDLToDirectory $sddl $Path
+    Set-SDDLToPath $sddl $Path
 }
 
 # === INSTALL ===
@@ -189,13 +204,17 @@ if ($Action -eq "install") {
         exit 1
     }
 
-    Set-SDDLToDirectory "O:BAG:DUD:PAI(A;OICI;0x1200a9;;;AU)(A;OICI;FA;;;SY)(A;OICI;FA;;;BA)(A;OICI;0x1200a9;;;BU)" $InstallDir
+    Set-SDDLToPath "O:BAG:DUD:PAI(A;OICI;0x1200a9;;;AU)(A;OICI;FA;;;SY)(A;OICI;FA;;;BA)(A;OICI;0x1200a9;;;BU)" $InstallDir
 
     Add-PublicDirectoryRoot $XamppPublicDir
     Add-PublicDirectoryAndSymlink "$InstallDir\apache\logs" "$XamppPublicDir\apache-logs"
     Add-PublicDirectoryAndSymlink "$InstallDir\phpmyadmin\tmp" "$XamppPublicDir\phpmyadmin-tmp"
     Add-PublicDirectoryAndSymlink "$InstallDir\tmp" "$XamppPublicDir\tmp"
 
+    AddFileAllowWriteNoDelete "$InstallDir\xampp-control.ini"
+    AddFileAllowWriteNoDelete "$InstallDir\xampp-control.log"
+
+    Add-Symlink "$InstallDir\htdocs" "$($NetworkDriveLetter):\htdocs" $false
     Add-Symlink "$InstallDir\htdocs" "$($NetworkDriveLetter):\htdocs" $false
 
     if (-not (Test-Path $MysqlTemplateDir)) {
