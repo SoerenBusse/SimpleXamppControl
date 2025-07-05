@@ -1,10 +1,10 @@
-# Simple Xampp Control
+# Xampp Classroom
 
 > **Disclaimer:** This project is not affiliated with or endorsed by XAMPP, Apache Friends, or any of their partners. XAMPP is a trademark of Apache Friends. This tool is an independent utility intended solely for educational and administrative convenience.
 
 This tool was developed to allow Xampp to be started in an Active Directory domain environment without administrative privileges, while simultaneously restricting access to the Xampp installation files in `C:\xampp` so that users cannot arbitrarily place files or modify settings.
 
-For this reason, *Simple Xampp Control* is suitable for educational environments where learners work with a preconfigured setup to learn PHP and/or SQL using the MySQL database.  
+For this reason, *Xampp Classroom* is suitable for educational environments where learners work with a preconfigured setup to learn PHP and/or SQL using the MySQL database.  
 Changes to the Xampp server that are not made by the administrator are not supported or possible.
 
 **Only Xampp in its minimal installation with Apache and MySQL is supported!**
@@ -30,7 +30,7 @@ This script sets up the required folder structure for Xampp, restricts access ac
 #### Usage
 
 ```
-.\PrepareXampp.ps1 <Drive letter to be used in symlinks, e.g. W (without colon or path)> <Existing drive letter for start script, see #SimpleXamppControl.ps1 in README>
+.\PrepareXampp.ps1 <Drive letter to be used in symlinks, e.g. W (without colon or path)>
 ```
 
 #### ACLs
@@ -80,14 +80,14 @@ The user gets individual access to `C:\xampp\htdocs` and `C:\xampp\mysql\data`, 
 
 ---
 
-### XamppClassRoomStarter.ps1
+### XamppClassroomStarter.ps1
 
-The `XamppClassRoomStarter.ps1` script ensures that the network drive is mounted, the MySQL database is copied from the template folder to the user's directory, and Apache and MySQL are then started.
+The `XamppClassroomStarter.ps1` script ensures that the network drive is mounted, the MySQL database is copied from the template folder to the user's directory, and Apache and MySQL are then started.
 
 #### Usage
 
 ```
-.\XamppClassRoomStarter.ps1 -Action <start/reset-database> -UserWebDriveLetter <Drive letter, e.g. W>
+.\XamppClassroomStarter.ps1 -Action <start/reset-database> -UserWebDriveLetter <Drive letter, e.g. W>
 ```
 
 When run, the script looks for the user’s Documents folder and creates a `Web` subfolder within it.  
