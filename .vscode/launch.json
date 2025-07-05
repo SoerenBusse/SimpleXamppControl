@@ -8,8 +8,8 @@
             "name": "PowerShell: Start Xampp Control",
             "type": "PowerShell",
             "request": "launch",
-            "script": "${workspaceFolder}\\startXamppControl.ps1",
-            "args": ["-UserWebDriveLetter W"]
+            "script": "${workspaceFolder}\\src\\XamppClassroomStarter.ps1",
+            "args": ["-NetworkDriveLetter W -Action start "]
         }
     ]
 }

@@ -48,6 +48,14 @@ function StartXamppControl() {
 function ResetDatabase() {
     $logger.Info("Starting database reset application...")
 
+    # Prüfe, ob MYSQL aktuell läuft
+    $process = Get-Process -Name $mysqldProcessName -ErrorAction SilentlyContinue
+    if($process) {
+        $logger.Error("MYSQL is currently running. Use the XAMPP control panel to stop mysql and try again")
+        WaitForKeyPress -Message "Press any key to stop programm..."
+        exit 1
+    }
+
     $promptResult = PromptUserYesNo -Question "Do you really want to reset the database? All data will be lost! Type <yes> or <no> and press <ENTER>"
 
     if (-Not $promptResult) {
@@ -70,6 +78,7 @@ $ErrorActionPreference = "Stop"
 # Logger initialisieren
 $xamppDirectory = "C:\xampp"
 $xamppPublicDirectory = "C:\xampp-public"
+$mysqldProcessName = "mysqld"
 
 [Logger] $logger = [Logger]::new()
 [NetworkShareTools] $networkShareTools = [NetworkShareTools]::new($logger, $NetworkDriveLetter)
