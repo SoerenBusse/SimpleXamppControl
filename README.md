@@ -1,96 +1,116 @@
 # Simple Xampp Control
-Dieses Tool wurde entwickelt um Xampp in einer Active Directory Domänen Umgebung ohne Administratorechte starten zu können und gleichzeitig den Zugriff auf die Xampp Installationsdateien in `C:\xampp` einzuschränken, sodass nicht jeder Nutzer hier beliebige Dateien ablegt oder Einstellungen modifiziert.
 
-Aus diesem Grund ist "Simple Xampp Control" für Lernumgebungen geeignet, in denen die Lernenden mit einer vorhandenen Umgebung den Umgang mit PHP und/oder SQL mit der Datenbank MySQL lernen sollen.
-Nicht vom Administrator eingestellte Änderungen am Xampp-Server werden nicht unterstützt bzw. sind nicht möglich.
+> **Disclaimer:** This project is not affiliated with or endorsed by XAMPP, Apache Friends, or any of their partners. XAMPP is a trademark of Apache Friends. This tool is an independent utility intended solely for educational and administrative convenience.
 
-**Es wird ausschließlich Xampp in der minimal Installation mit Apache und MySQL unterstützt!**
+This tool was developed to allow Xampp to be started in an Active Directory domain environment without administrative privileges, while simultaneously restricting access to the Xampp installation files in `C:\xampp` so that users cannot arbitrarily place files or modify settings.
+
+For this reason, *Simple Xampp Control* is suitable for educational environments where learners work with a preconfigured setup to learn PHP and/or SQL using the MySQL database.  
+Changes to the Xampp server that are not made by the administrator are not supported or possible.
+
+**Only Xampp in its minimal installation with Apache and MySQL is supported!**
 
 ## Problem
-Standardmäßig installiert Xampp sämtliche Dateien in den `C:\xampp` Ordner.
-Dies betrifft ebenfalls den `htdocs` Ordner sowie den Datenordner für die MySQL Installation.
-Benutzer sollen ausschließlich auf diese Ordner Schreibrechte haben und ihre eigenen Dateien sehen.
-Dieses Einschränken bringt allerdings ein paar Probleme mit sich, da so die Benutzer keine Schreibrechte mehr haben (Keine Schreibrechte auf eigene Webdateien, keine Schreibrechte für Apache auf den temporären Ordner in C:\xampp\tmp...)
 
-## Lösung
-Symlinks, Netzwerklaufwerke und noch mehr Symlinks :).
-Was im ersten moment eher ungewöhnlich und hässlich wirkt erweist sich doch als eine saubere Lösung für diese Problemstellung.
+By default, Xampp installs all files into the `C:\xampp` folder.  
+This also includes the `htdocs` folder as well as the data folder for the MySQL installation.  
+Users should have write access only to these folders and only see their own files.  
+However, this restriction creates a few problems, since users then no longer have write permissions (e.g., no write access to their own web files or for Apache to its temp folder at `C:\xampp\tmp`).
 
-### prepareXampp.ps1
-Das Skript erstellt die Ordnerstruktur für Xampp, schränkt diese ein und erstellt entsprechende Symlinks
+## Solution
 
-**Dieses Skript muss mit Administratorenrechten gestartet werden.**
+Symlinks, network drives, and more symlinks :).  
+While this may seem strange and messy at first, it turns out to be a clean and effective solution to the problem.
 
-#### Ausführen
-`.\PrepareXampp.ps1 <Der in Symlinks zu nutzende Laufwerksbuchstabe - z.B. W (ohne Doppelpunkt und Pfad)> <Vorhanden Laufwerksbuchstaben für Startskript nutzen, siehe #SimpleXamppControl.ps1 in README>`
+### PrepareXampp.ps1
+
+This script sets up the required folder structure for Xampp, restricts access accordingly, and creates the necessary symlinks.
+
+**This script must be run with administrative privileges.**
+
+#### Usage
+
+```
+.\PrepareXampp.ps1 <Drive letter to be used in symlinks, e.g. W (without colon or path)> <Existing drive letter for start script, see #SimpleXamppControl.ps1 in README>
+```
 
 #### ACLs
-Mittels vordefinierten SDDLs ACLs werden die Rechte auf dem Ordner `C:\xampp` so eingeschränkt, das ausschließlich Administratoren (inkl. Domänen Administratoren) Schreibzugriff haben.
-Alle anderen Benutzer dürfen ausschließlich lesen.
 
-Für temporäre Dateien von Apache und MySQL wird eine Ordnerstruktur in `C:\xampp-public` angelegt, die von den Benutzern allerdings **nicht** ohne Administratorrechte geändert werden kann.
-Auf den Inhalt der Ordner haben die Benutzer dagegen Schreibrechte.
+Using predefined SDDL-based ACLs, access to the `C:\xampp` folder is restricted so that only administrators (including domain admins) have write access.  
+All other users are limited to read-only access.
+
+A folder structure under `C:\xampp-public` is created for Apache and MySQL temporary files. This structure cannot be changed without administrative rights.  
+However, users have write access to the contents of these folders.
 
 #### Symlinks
-Zunächst wird der Ordner `mysql\data` in `mysql\data-template` umbenannt, sodass vom `data` Ordner im weiteren Verlauf ein Symlink erstellt werden kann und so die von Xampp mitgelieferte Datenbank, im folgenden Template genannt, nicht verloren geht.
-Die für die Benutzer beschreibaren Ordner (`htdocs` und `mysql\data`) werden auf ein Netzwerklaufwerk gelinkt.
-Gleichzeitig wird für die erforderlichen temporären Ordner ein Symlink nach `C:\xampp-public` erstellt
 
-Konkret entsteht folgende Symlink Situation
+The folder `mysql\data` is first renamed to `mysql\data-template` so that a symlink can be created at `data` later on, preserving the default Xampp-supplied database (referred to as the template).  
+The user-writable folders (`htdocs` and `mysql\data`) are linked to a network drive.  
+Simultaneously, the required temporary folders are linked to `C:\xampp-public`.
+
+The symlinks are created as follows:
+
 ```
-C:\xampp\htdocs ==> Laufwerksbuchstabe:\Web\htdocs
-C:\xampp\mysql\data ==> Laufwerksbuchstabe:\Web\mysqldata
-C:\xampp\tmp ==> C:\xampp-public\tmp
-C:\xampp\apache\logs ==> C:\xampp-public\apache-logs
-C:\xampp\phpmyadmin\tmp ==> C:\xampp-public\phpmyadmin-tmp
-```
-
-#### Netzwerklaufwerke
-Da ausschließlich Administratoren auf C:\xampp Zugriff haben, können Benutzer das Ziel der Symlinks von `htdocs` sowie `mysql/data` zur Laufzeit nicht auf ihren eigenen Benutzerordner ändern.
-Diese Limitierung wird durch das erstellen von Symlinks auf Netzwerklaufwerke begenet, da ein Ziel eines Symlinks beim Anlegen noch nicht existieren muss.
-
-Das `PrepareXampp.ps1` Skript erstellt also ein Symlink auf das angegebene Netzwerklaufwerk nach `Laufwerksbuchstabe:\Web\htdocs` bzw. `Laufwerksbuchstabe:\Web\mysqldata`.
-Mit Benutzerrechten kann später z.B. das Dokumentenverzeichnis auf den Laufwerksbuchstaben gemountet werden.
-
-Somit erhält man beispielsweise folgende Konstellation:
-
-Der Benutzer kann in `C:\xampp\htdocs` Dateien anlegen und sie werden im eigenen Benutzerordner unter `\\localhost\C$\Users\Benutzer\Documents\Web\htdocs` gespeichert.
-```
-C:\xampp\htdocs == Symlink ==> W:\Web\htdocs == W gemountet nach ==> \\localhost\C$\Users\Benutzer\Documents\
+C:\xampp\htdocs               ==> DriveLetter:\Web\htdocs  
+C:\xampp\mysql\data           ==> DriveLetter:\Web\mysqldata  
+C:\xampp\tmp                  ==> C:\xampp-public\tmp  
+C:\xampp\apache\logs          ==> C:\xampp-public\apache-logs  
+C:\xampp\phpmyadmin\tmp       ==> C:\xampp-public\phpmyadmin-tmp  
 ```
 
-#### Ergebnis
-Der Benutzer erhält Zugriff auf einen individuellen `C:\xampp\htdocs` sowie `C:\xampp\mysql\data` Ordner während der andere Teil des `C:\xampp` Ordners nicht beschreibar ist.
+#### Network Drives
 
-### SimpleXamppControl.ps1
-Das PrepareXampp.ps1 Skript sorgt dafür, das das Netzwerklaufwerk gemountet wird, die MySQL Datenbank aus dem Template Ordner in den Benutzerordner kopiert und Apache und MySQL im Anschluss gestartet wird.
-Es stellt eine kleine und zugegebenerweise hässliche GUI zur Verfügung, die es ermöglicht Xampp sauber wieder zu beenden und die Datenbank zurück zu setzen.
+Since only administrators have access to `C:\xampp`, users cannot change the symlink targets of `htdocs` and `mysql/data` to their own folders at runtime.  
+This limitation is addressed by using symlinks to network drives, as the target of a symlink does not need to exist at the time of creation.
 
-#### Ausführen
-`.\SimpleXamppControl.ps1 <Laufwerksbuchstabe, der auch im prepare Skript genutzt wurde> <true/false: Soll ein vorhandenes Netzwerklaufwerk genutzt werden>`
+The `PrepareXampp.ps1` script therefore creates symlinks to the specified network drive, pointing to `DriveLetter:\Web\htdocs` and `DriveLetter:\Web\mysqldata`.  
+With regular user rights, the documents folder can later be mounted to the chosen drive letter.
 
-Wird als zweiter Parameter `false` angegeben, so versucht das Skript standardmäßig den Dokumentenordner des Benutzers ausfindig zu machen und unter dem angegebenen Laufwerksbuchstabe zu mounten. Es werden dabei zwei Fälle unterschieden:
-| Typ  | Ziel des Netzwerklaufwerks  |
-|---|---|
-| Lokaler Dokumenten Ordner | \\localhost\C$\Users\<Benutzername>\Documents  |
-| Folder Redirection | \\<Pfad zum umgeleiteten Documents Ordner>  |
+For example:
 
-Für ersteren Fall muss ein Zugriff auf das `C` Laufwerk über `\\localhost\C$` möglich sein
+The user can create files in `C:\xampp\htdocs`, which are then stored in their personal folder at `\\localhost\C$\Users\Username\Documents\Web\htdocs`.
 
-Ist der zweite Parameter `true` so wird kein Mountversuch unternommen und das Skript geht davon aus, das unter dem angegeben Laufwerksbuchstaben bereits ein Netzwerklaufwerk existiert, welches zum Beispiel über GPOs erstellt wurde.
+```
+C:\xampp\htdocs  == symlink ==>  W:\Web\htdocs  
+W: is mounted to ==>  \\localhost\C$\Users\Username\Documents\
+```
 
-In beiden Fälle erstellt das Skript im Root-Verzeichnis des Laufwerksbuchstaben folgende Ordnerstruktur:
+#### Result
+
+The user gets individual access to `C:\xampp\htdocs` and `C:\xampp\mysql\data`, while the rest of the `C:\xampp` directory remains read-only.
+
+---
+
+### XamppClassRoomStarter.ps1
+
+The `XamppClassRoomStarter.ps1` script ensures that the network drive is mounted, the MySQL database is copied from the template folder to the user's directory, and Apache and MySQL are then started.
+
+#### Usage
+
+```
+.\XamppClassRoomStarter.ps1 -Action <start/reset-database> -UserWebDriveLetter <Drive letter, e.g. W>
+```
+
+When run, the script looks for the user’s Documents folder and creates a `Web` subfolder within it.  
+Two scenarios are supported:
+
+| Type                  | Network drive target                          |
+|-----------------------|-----------------------------------------------|
+| Local documents folder | `\\localhost\C$\Users\<Username>\Documents\Web` |
+| Folder redirection     | `\\<Path to redirected documents>\Web`         |
+
+In the first case, access to the `C` drive via `\\localhost\C$` must be possible.
+
+If the second parameter is `true`, no mount attempt is made, and the script assumes a preexisting network drive at the given letter (e.g. created via GPO).
+
+In both cases, the following folder structure is created on the root of the drive:
+
 ```
 W:
-├───Web
-│   ├───htdocs
-│   └───mysqldata
+├───htdocs
+└───mysqldata
 ```
 
-#### Datenbank resetten
-Wird auf den Datenbank resetten Knopf gedrückt, wird der Inhalt aus `Laufwerksbuchstabe:\Web\mysqldata` gelöscht und das Template erneut in diesen Ordner kopiert.
-Somit erhält der Benutzer eine saubere und neue Datenbank.
+#### Resetting the Database
 
-#### Xampp beenden
-Im Fehlerfalle oder beim klicken auf den "Xampp beenden" Knopf werden Apache und MySQL ordnungsgemäß gestoppt und im Anschluss das Netzwerklaufwerk wieder entfernt.
-
+If the script is run with `-Action reset-database`, it launches an interactive console prompt asking the user if they really want to reset the database.  
+If the user confirms with `yes`, the database in the user's folder is deleted and replaced with a fresh copy of the template.
