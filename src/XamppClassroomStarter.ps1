@@ -8,7 +8,7 @@ param(
 
     [Parameter(Mandatory = $true)]
     [ValidatePattern("^[A-Z]$")]
-    [string] $UserWebDriveLetter
+    [string] $NetworkDriveLetter
 )
 
 
@@ -72,7 +72,7 @@ $xamppDirectory = "C:\xampp"
 $xamppPublicDirectory = "C:\xampp-public"
 
 [Logger] $logger = [Logger]::new()
-[NetworkShareTools] $networkShareTools = [NetworkShareTools]::new($logger, $userWebDriveLetter)
+[NetworkShareTools] $networkShareTools = [NetworkShareTools]::new($logger, $NetworkDriveLetter)
 [XamppTools] $xamppTools = [XamppTools]::new($logger, $xamppDirectory, $xamppPublicDirectory)
 
 try {
@@ -107,13 +107,13 @@ try {
     if(-Not($networkShareTools.NetworkDriveExists())) {
         $networkShareTools.CreateNetworkDrive($uncWebDirectory)
     } else {
-        $logger.Info("Using existing network drive $userWebDriveLetter")
+        $logger.Info("Using existing network drive $NetworkDriveLetter")
     }
 
     # Ist der UNC-Pfad des Netzwerkshares korrekt? Sonst mounten wir den neu
     $currentNetworkDriveRemotePath = $networkShareTools.GetPathOfNetworkDrive()
     if($currentNetworkDriveRemotePath -ne $uncWebDirectory) {
-        $logger.Warning("Network Drive $UserWebDriveLetter currently points to $currentNetworkDriveRemotePath but must point to $uncWebDirectory")
+        $logger.Warning("Network Drive $NetworkDriveLetter currently points to $currentNetworkDriveRemotePath but must point to $uncWebDirectory")
         $logger.Warning("Reattaching network drive with correct path to fix this inconsistency")
 
         $networkShareTools.RemoveNetworkDriveIfExists()
