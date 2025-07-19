@@ -5,7 +5,8 @@ param(
     [string]$Action = "install",
 
     [string]$InstallDir = "C:\xampp",
-    [string]$NetworkDriveLetter = "W"
+    [string]$NetworkDriveLetter = "W",
+    [bool]$CreateDesktopShortcut = $false
 )
 
 $ErrorActionPreference = "Stop"
@@ -19,8 +20,8 @@ $CommonDesktopDir = [Environment]::GetFolderPath("CommonDesktopDirectory")
 $CommonStartMenuDir = [Environment]::GetFolderPath("CommonStartMenu")
 $ProgramShortcutDir = Join-Path $CommonStartMenuDir "\Programs\XAMPP Classroom"
 
-$ShortcutDesktop = Join-Path $CommonDesktopDir "Xampp Classroom.lnk"
-$ShortcutStart = Join-Path $ProgramShortcutDir "Xampp Classroom.lnk"
+$ShortcutDesktop = Join-Path $CommonDesktopDir "XAMPP Classroom.lnk"
+$ShortcutStart = Join-Path $ProgramShortcutDir "XAMPP Classroom.lnk"
 $ShortcutReset = Join-Path $ProgramShortcutDir "Reset MySQL Database.lnk"
 
 $XamppIconPath = "C:\xampp\xampp_start.exe"
@@ -195,7 +196,11 @@ if ($Action -eq "install") {
     Set-Content $ResetCmdPath -Value "@echo off`nPowerShell -ExecutionPolicy Bypass -File `"$ClassroomDir\XamppClassRoomStarter.ps1`" -Action reset-database -NetworkDriveLetter $NetworkDriveLetter" -Encoding ASCII
 
     New-Item $ProgramShortcutDir -ItemType Directory -Force | Out-Null
-    New-Shortcut $StartCmdPath $ShortcutDesktop -Description "Start Xampp Classroom" -IconLocation $XamppIconPath
+   
+    if ($CreateDesktopShortcut) {
+        New-Shortcut $StartCmdPath $ShortcutDesktop -Description "Start Xampp Classroom" -IconLocation $XamppIconPath
+    }
+   
     New-Shortcut $StartCmdPath $ShortcutStart -Description "Start Xampp Classroom" -IconLocation $XamppIconPath
     New-Shortcut $ResetCmdPath $ShortcutReset -Description "Reset the database"
 
